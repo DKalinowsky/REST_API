@@ -1,1 +1,1 @@
-print("Hellow WOrld!dasd")
+print("Hellow WOrld!")
