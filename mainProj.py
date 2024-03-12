@@ -23,10 +23,11 @@ class User(db.Model):
 class Courses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.String(100))
+    description = db.Column(db.String(500), nullable=True)
     complete = db.Column(db.Boolean)
     user_id = db.Column(db.Integer)
 
+#db.create_all()
 
 # def token_required(f):
 #     @wraps(f)
@@ -164,14 +165,15 @@ def login():
 @app.route('/courses', methods=['GET'])
 #@token_required
 def get_all_courses():#current_user
-    coursesl = Courses.query.filter_by(user_id=current_user.id).all()
+    coursesl = Courses.query.all()
 
     output = []
 
     for courses in coursesl:
         courses_data = {}
         courses_data['id'] = courses.id
-        courses_data['text'] = courses.text
+        courses_data['title'] = courses.title
+        courses_data['description'] = courses.description
         courses_data['complete'] = courses.complete
         output.append(courses_data)
 
@@ -201,11 +203,14 @@ def get_one_courses(courses_id):#current_user,
 def create_courses():#current_user
     data = request.get_json()
 
-    new_courses = Courses(text=data['text'], complete=False)# , user_id=current_user.id
+    if not data or 'title' not in data:
+        return jsonify({'message': 'Missing required data'}), 400
+    
+    new_courses = Courses(title=data['title'], description=data.get('description', ''))# , user_id=current_user.id
     db.session.add(new_courses)
     db.session.commit()
 
-    return jsonify({'message' : "course created!"})
+    return jsonify({'message': "Course created!"}), 201
 
 @app.route('/courses/<courses_id>', methods=['PUT'])
 #@token_required
