@@ -22,6 +22,7 @@ class User(db.Model):
 
 class Courses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(100))
     complete = db.Column(db.Boolean)
     user_id = db.Column(db.Integer)
@@ -137,6 +138,8 @@ def delete_user(public_id):# current_user,
 
     return jsonify({'message' : 'The user has been deleted!'})
 
+
+# Endpoint for login
 @app.route('/login')
 def login():
     auth = request.authorization
@@ -156,6 +159,8 @@ def login():
 
     return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Incorrect password!"'})
 
+
+#Endpoint for listing courses
 @app.route('/courses', methods=['GET'])
 #@token_required
 def get_all_courses():#current_user
@@ -172,6 +177,8 @@ def get_all_courses():#current_user
 
     return jsonify({'coursesl' : output})
 
+
+#Endpoint for displaying course
 @app.route('/courses/<courses_id>', methods=['GET'])
 #@token_required
 def get_one_courses(courses_id):#current_user, 
@@ -187,6 +194,8 @@ def get_one_courses(courses_id):#current_user,
 
     return jsonify(courses_data)
 
+
+#Endpoint for adding course
 @app.route('/courses', methods=['POST'])
 #@token_required
 def create_courses():#current_user
