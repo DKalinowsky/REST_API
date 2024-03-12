@@ -27,33 +27,33 @@ class Courses(db.Model):
     user_id = db.Column(db.Integer)
 
 
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
+# def token_required(f):
+#     @wraps(f)
+#     def decorated(*args, **kwargs):
+#         token = None
 
-        if 'x-access-token' in request.headers:
-            token = request.headers['x-access-token']
+#         if 'x-access-token' in request.headers:
+#             token = request.headers['x-access-token']
 
-        if not token:
-            return jsonify({'message' : 'Token is missing!'}), 401
+#         if not token:
+#             return jsonify({'message' : 'Token is missing!'}), 401
 
-        try: 
-            data = jwt.decode(token, app.config['SECRET_KEY'])
-            current_user = User.query.filter_by(public_id=data['public_id']).first()
-        except:
-            return jsonify({'message' : 'Token is invalid!'}), 401
+#         try: 
+#             data = jwt.decode(token, app.config['SECRET_KEY'])
+#             current_user = User.query.filter_by(public_id=data['public_id']).first()
+#         except:
+#             return jsonify({'message' : 'Token is invalid!'}), 401
 
-        return f(current_user, *args, **kwargs)
+#         return f(current_user, *args, **kwargs)
 
-    return decorated
+#     return decorated
 
 @app.route('/user', methods=['GET'])
-@token_required
-def get_all_users(current_user):#
+#@token_required
+def get_all_users():#current_user
 
-    if not current_user.admin:
-        return jsonify({'message' : 'Cannot perform that function!'})
+    #if not current_user.admin:
+        #return jsonify({'message' : 'Cannot perform that function!'})
 
     users = User.query.all()
 
@@ -70,11 +70,11 @@ def get_all_users(current_user):#
     return jsonify({'users' : output})
 
 @app.route('/user/<public_id>', methods=['GET'])
-@token_required
-def get_one_user(current_user, public_id):#, 
+#@token_required
+def get_one_user(public_id):#, current_user, 
 
-    if not current_user.admin:
-        return jsonify({'message' : 'Cannot perform that function!'})
+    # if not current_user.admin:
+    #     return jsonify({'message' : 'Cannot perform that function!'})
 
     user = User.query.filter_by(public_id=public_id).first()
 
@@ -90,10 +90,10 @@ def get_one_user(current_user, public_id):#,
     return jsonify({'user' : user_data})
 
 @app.route('/user', methods=['POST'])
-@token_required
-def create_user(current_user):#
-    if not current_user.admin: 
-        return jsonify({'message' : 'Cannot perform that function!'})
+#@token_required
+def create_user():#current_user
+    # if not current_user.admin: 
+    #     return jsonify({'message' : 'Cannot perform that function!'})
 
     data = request.get_json()
 
@@ -106,10 +106,10 @@ def create_user(current_user):#
     return jsonify({'message' : 'New user created!'})
 
 @app.route('/user/<public_id>', methods=['PUT'])
-@token_required
-def promote_user(current_user, public_id):#, 
-    if not current_user.admin:
-        return jsonify({'message' : 'Cannot perform that function!'})
+#@token_required
+def promote_user(public_id):#, current_user, 
+    # if not current_user.admin:
+    #     return jsonify({'message' : 'Cannot perform that function!'})
 
     user = User.query.filter_by(public_id=public_id).first()
 
@@ -122,10 +122,10 @@ def promote_user(current_user, public_id):#,
     return jsonify({'message' : 'The user has been promoted!'})
 
 @app.route('/user/<public_id>', methods=['DELETE'])
-@token_required
-def delete_user(current_user, public_id):# 
-    if not current_user.admin:
-        return jsonify({'message' : 'Cannot perform that function!'})
+#@token_required
+def delete_user(public_id):# current_user, 
+    # if not current_user.admin:
+    #     return jsonify({'message' : 'Cannot perform that function!'})
 
     user = User.query.filter_by(public_id=public_id).first()
 
@@ -157,8 +157,8 @@ def login():
     return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Incorrect password!"'})
 
 @app.route('/courses', methods=['GET'])
-@token_required
-def get_all_courses(current_user):
+#@token_required
+def get_all_courses():#current_user
     coursesl = Courses.query.filter_by(user_id=current_user.id).all()
 
     output = []
@@ -173,9 +173,9 @@ def get_all_courses(current_user):
     return jsonify({'coursesl' : output})
 
 @app.route('/courses/<courses_id>', methods=['GET'])
-@token_required
-def get_one_courses(current_user, courses_id):#
-    courses = Courses.query.filter_by(id=courses_id, user_id=current_user.id).first()#
+#@token_required
+def get_one_courses(courses_id):#current_user, 
+    courses = Courses.query.filter_by(id=courses_id).first()#, user_id=current_user.id
 
     if not courses:
         return jsonify({'message' : 'No courses found!'})
@@ -188,20 +188,20 @@ def get_one_courses(current_user, courses_id):#
     return jsonify(courses_data)
 
 @app.route('/courses', methods=['POST'])
-@token_required
-def create_courses(current_user):#
+#@token_required
+def create_courses():#current_user
     data = request.get_json()
 
-    new_courses = Courses(text=data['text'], complete=False, user_id=current_user.id)# 
+    new_courses = Courses(text=data['text'], complete=False)# , user_id=current_user.id
     db.session.add(new_courses)
     db.session.commit()
 
     return jsonify({'message' : "course created!"})
 
 @app.route('/courses/<courses_id>', methods=['PUT'])
-@token_required
-def complete_courses(current_user, courses_id):#
-    courses = Courses.query.filter_by(id=courses_id, user_id=current_user.id).first()#, 
+#@token_required
+def complete_courses(courses_id):#current_user, 
+    courses = Courses.query.filter_by(id=courses_id).first()#, , user_id=current_user.id
 
     if not courses:
         return jsonify({'message' : 'No courses found!'})
@@ -212,9 +212,9 @@ def complete_courses(current_user, courses_id):#
     return jsonify({'message' : 'courses item has been completed!'})
 
 @app.route('/courses/<courses_id>', methods=['DELETE'])
-@token_required
-def delete_courses(current_user, courses_id):#,
-    courses = Courses.query.filter_by(id=courses_id, user_id=current_user.id).first()#, 
+#@token_required
+def delete_courses(courses_id):#,current_user, 
+    courses = Courses.query.filter_by(id=courses_id).first()#, , user_id=current_user.id
 
     if not courses:
         return jsonify({'message' : 'No courses found!'})
