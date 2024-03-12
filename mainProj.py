@@ -191,7 +191,8 @@ def get_one_courses(courses_id):#current_user,
 
     courses_data = {}
     courses_data['id'] = courses.id
-    courses_data['text'] = courses.text
+    courses_data['description'] = courses.description
+    courses_data['title'] = courses.title
     courses_data['complete'] = courses.complete
 
     return jsonify(courses_data)
